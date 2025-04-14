@@ -140,16 +140,18 @@ public class BookService(DataContext context) : IBookService
         return new Response<List<GetBookDto>>(name);
     }
 
-    public async Task<Response<List<GetBookDto>>> GetRecentlyPublishedBooks(DateTime years)
+    public async Task<Response<List<GetBookDto>>> GetRecentlyPublishedBooks(int years)
     {
+        var daate=DateTime.Now.AddYears(-years);
         var books = await context.Books
-        .Where(b => b.PublishedDate == years)
+        .Where(b => b.PublishedDate >=daate)
         .Select(b => new GetBookDto()
         {
             Id = b.Id,
             Title = b.Title,
             Genre = b.Genre,
             PublishedDate = b.PublishedDate,
+            AuthorId=b.AuthorId,
 
         }).ToListAsync();
 

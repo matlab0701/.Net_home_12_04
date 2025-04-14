@@ -12,8 +12,8 @@ public class BorrowRecord
 
     [ForeignKey("Book")]
     public int BookId { get; set; }
-    public Member Member { get; set; }
-    public Book Book { get; set; }
     public DateTime BorrowDate { get; set; }
     public DateTime? ReturnDate { get; set; }
+    public Member Member { get; set; }
+    public Book Book { get; set; }
 }

@@ -13,5 +13,5 @@ public interface IBookService
     Task<Response<List<GetBookDto>>> GetAllAsunc();
     Task<Response<List<GetBookDto>>> GetBookByAuthor(string name);
     Task<Response<List<GetBookDto>>> GetBookByGenre(string genre);
-    Task<Response<List<GetBookDto>>> GetRecentlyPublishedBooks(DateTime years);
+    Task<Response<List<GetBookDto>>> GetRecentlyPublishedBooks(int years);
 }

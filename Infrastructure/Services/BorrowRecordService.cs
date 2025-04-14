@@ -67,7 +67,7 @@ public class BorrowRecordService(DataContext context) : IBorrowRecordService
                 MemberId = n.MemberId,
                 BookId = n.BookId,
                 BorrowDate = n.BorrowDate,
-             
+
             })
             .ToListAsync();
 
@@ -89,7 +89,7 @@ public class BorrowRecordService(DataContext context) : IBorrowRecordService
                 MemberId = n.MemberId,
                 BookId = n.BookId,
                 BorrowDate = n.BorrowDate,
-                
+
             })
             .ToListAsync();
 
@@ -114,21 +114,51 @@ public class BorrowRecordService(DataContext context) : IBorrowRecordService
 
         return new Response<GetBorrowRecordDto>(borrow);
     }
-
-    public Task<Response<List<GetBorrowRecordDto>>> GetOverdueBorrowRecord()
+    public async Task<Response<GetBorrowRecordDto>> UpdateBorrowRecord(int id, UpdateBorrowRecordDto recordDto)
     {
-        throw new NotImplementedException();
+        var exist = await context.BorrowRecords.FindAsync(id);
+        if (exist == null)
+        {
+            return new Response<GetBorrowRecordDto>(HttpStatusCode.BadRequest, "Id is not found");
+        }
+
+        exist.BookId = recordDto.BookId;
+        exist.MemberId = recordDto.MemberId;
+        exist.ReturnDate = recordDto.ReturnDate;
+        exist.BorrowDate = recordDto.BorrowDate;
+
+        var result = await context.SaveChangesAsync();
+
+        var borrowRecords = new GetBorrowRecordDto()
+        {
+            Id = exist.Id,
+            MemberId = exist.MemberId,
+            BookId = exist.BookId,
+            BorrowDate = exist.BorrowDate,
+            ReturnDate = exist.BorrowDate
+
+        };
+        return result == 0 ?
+         new Response<GetBorrowRecordDto>(HttpStatusCode.BadRequest, "BorrowRecord not update")
+        : new Response<GetBorrowRecordDto>(borrowRecords);
+
     }
 
-    public Task<Response<GetBorrowRecordDto>> UpdateBorrowRecord(int id, UpdateBorrowRecordDto recordDto)
+    public async Task<Response<List<OverdueBorrowDto>>> GetOverdueBorrowRecord()
     {
-        throw new NotImplementedException();
-    }
+        var today = DateTime.Now.Date;
 
-    Task<Response<string>> IBorrowRecordService.DeleteBorrowRecord(int id)
-    {
-        throw new NotImplementedException();
+        var overdue = await context.BorrowRecords
+            .Where(br => br.BorrowDate.AddDays(14) < today)
+            .Select(br => new OverdueBorrowDto
+            {
+                Id = br.Id,
+                MemberName = br.Member.Name,
+                BookTitle = br.Book.Title,
+                BorrowDate = br.BorrowDate
+            })
+            .ToListAsync();
+        return new Response<List<OverdueBorrowDto>>(overdue);
     }
-
 
 }
